@@ -2,7 +2,6 @@ use git2::Repository;
 use which::which;
 use std::{env, path::PathBuf};
 
-// const ARM_INCLUDE_DIR: &str = "/home/xuchang/install/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/";
 const CMSIS_NN_URL: &str = "https://github.com/ARM-software/CMSIS-NN.git";
 
 fn switch_branch(repo: &Repository, branch_name: &str) {
