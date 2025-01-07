@@ -1,5 +1,5 @@
-use std::{env, path::PathBuf};
 use git2::Repository;
+use std::{env, path::PathBuf};
 
 // const ARM_INCLUDE_DIR: &str = "/home/xuchang/install/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/";
 const CMSIS_NN_URL: &str = "https://github.com/ARM-software/CMSIS-NN.git";
@@ -10,7 +10,8 @@ fn switch_branch(repo: &Repository, branch_name: &str) {
     match reference {
         Some(gref) => repo.set_head(gref.name().unwrap()),
         None => repo.set_head_detached(object.id()),
-    }.unwrap();
+    }
+    .unwrap();
 }
 
 fn main() {
@@ -30,13 +31,15 @@ fn main() {
 
     let target_flag = match target.as_str() {
         "thumbv7em-none-eabihf" => "cortex-m4",
-        _ => unimplemented!()
+        _ => unimplemented!(),
     };
 
     let lib = cmake::Config::new(&cmsis_nn_dir)
         .define("CMAKE_TOOLCHAIN_FILE", &toolchain_file)
         .define("TARGET_CPU", target_flag)
-        .build_target("cmsis-nn").build().join("build");
+        .build_target("cmsis-nn")
+        .build()
+        .join("build");
 
     println!("cargo:rustc-link-search={}", lib.display());
 
@@ -57,7 +60,6 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings");
 
-
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
@@ -66,10 +68,8 @@ fn main() {
 fn get_repo(url: &str, path: &PathBuf) -> Repository {
     let repo = match Repository::open(&path) {
         Ok(repo) => repo,
-        Err(e) if e.code() == git2::ErrorCode::NotFound => {
-            Repository::clone(url, &path).unwrap()
-        },
-        Err(e) => panic!("Failed to open: {}", e)
+        Err(e) if e.code() == git2::ErrorCode::NotFound => Repository::clone(url, &path).unwrap(),
+        Err(e) => panic!("Failed to open: {}", e),
     };
     repo
 }

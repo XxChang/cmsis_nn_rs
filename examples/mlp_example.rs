@@ -6,13 +6,16 @@ mod minst;
 
 extern crate alloc;
 
-use panic_probe as _;
 use defmt_rtt as _;
 use nrf52833_hal as _;
+use panic_probe as _;
 
-use embedded_alloc::LlffHeap as Heap;
-use minst::{mlp::MlpConfig, model::{MnistConfig, Model}};
 use burn::tensor::backend::Backend;
+use embedded_alloc::LlffHeap as Heap;
+use minst::{
+    mlp::MlpConfig,
+    model::{MnistConfig, Model},
+};
 
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
@@ -31,7 +34,5 @@ fn main() -> ! {
     let minst_config = MnistConfig::new(mlp_config);
     let minst_model: Model<Backend> = Model::new(&minst_config, &device);
 
-
     loop {}
 }
-

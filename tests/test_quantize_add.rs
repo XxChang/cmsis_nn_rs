@@ -5,12 +5,15 @@
 #[defmt_test::tests]
 mod tests {
     use burn_tensor::TensorData;
+    use cmsis_nn_rs::*;
+    use core::{
+        alloc::{GlobalAlloc, Layout},
+        ffi::c_void,
+    };
     use defmt_rtt as _;
+    use embedded_alloc::TlsfHeap as Heap;
     use nrf52833_hal as _;
     use panic_probe as _;
-    use cmsis_nn_rs::*;
-    use embedded_alloc::TlsfHeap as Heap;
-    use core::{alloc::{GlobalAlloc, Layout}, ffi::c_void};
     extern crate alloc;
     use alloc::vec::Vec;
 
@@ -26,7 +29,5 @@ mod tests {
     }
 
     #[test]
-    fn test_quantize_add_d2() {
-        
-    }
+    fn test_quantize_add_d2() {}
 }

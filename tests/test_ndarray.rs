@@ -5,10 +5,10 @@
 #[defmt_test::tests]
 mod tests {
     use defmt_rtt as _;
+    use embedded_alloc::TlsfHeap as Heap;
     use ndarray::{Array, Ix3};
     use nrf52833_hal as _;
     use panic_probe as _;
-    use embedded_alloc::TlsfHeap as Heap;
 
     #[global_allocator]
     static HEAP: Heap = Heap::empty();
@@ -22,7 +22,5 @@ mod tests {
     }
 
     #[test]
-    fn test_ndarray() {
-        
-    }
+    fn test_ndarray() {}
 }
