@@ -1,5 +1,5 @@
 [package]
-name = "cmsis_nn_rs"
+name = "cmsis-nn-rs"
 description = "Bindings to the CMSIS NN library for ARM Cortex-M processors"
 version = "0.1.0"
 authors = ["Chang Xu <xuxchang@hotmail.com>"]
@@ -10,10 +10,8 @@ edition = "2021"
 harness = false
 
 [dependencies]
-burn-tensor = { path = "/home/xuchang/github/burn/crates/burn-tensor", version = "0.16.0", default-features = false }
-ndarray = { version = "0.16.0", default-features = false }
-burn-ndarray = { path = "/home/xuchang/github/burn/crates/burn-ndarray", default-features = false}
-defmt = "0.3.8"
+defmt = "0.3.10"
+fixed = "1.28.0"
 
 [build-dependencies]
 bindgen = "0.71.1"
@@ -28,9 +26,7 @@ defmt = "0.3.8"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
 embedded-alloc = "0.6.0"
-ndarray = { version = "0.16.0", default-features = false }
-cortex-m-rt = "0.7.1"
-burn = { path = "/home/xuchang/github/burn/crates/burn", default-features = false, features = ["ndarray"]}
+cortex-m-rt = "0.7.5"
 
 [target.thumbv7em-none-eabihf.dev-dependencies.nrf52833-hal]
 version = "0.18.0"

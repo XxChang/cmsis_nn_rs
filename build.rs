@@ -1,6 +1,6 @@
 use git2::Repository;
-use which::which;
 use std::{env, path::PathBuf};
+use which::which;
 
 const CMSIS_NN_URL: &str = "https://github.com/ARM-software/CMSIS-NN.git";
 
@@ -16,9 +16,16 @@ fn switch_branch(repo: &Repository, branch_name: &str) {
 
 fn main() {
     let target = env::var("TARGET").unwrap();
-    let arm_toolchain = env::var("ARM_TOOLCHAIN_PATH").unwrap_or_else(|_|{
+    let arm_toolchain = env::var("ARM_TOOLCHAIN_PATH").unwrap_or_else(|_| {
         let gcc_path = which("arm-none-eabi-gcc").unwrap();
-        gcc_path.parent().unwrap().parent().unwrap().to_str().unwrap().to_string()
+        gcc_path
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string()
     });
 
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
@@ -48,7 +55,6 @@ fn main() {
 
     println!("cargo:rustc-link-lib=static=cmsis-nn");
 
-    println!("cargo:warning=ARM_TOOLCHAIN_PATH={}", arm_toolchain);
     let cmsis_nn_include_dir = cmsis_nn_dir.join("Include");
     let arm_toolchain_include_dir = PathBuf::from(arm_toolchain).join("include");
 
