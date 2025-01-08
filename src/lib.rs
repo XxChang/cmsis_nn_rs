@@ -4,8 +4,12 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+use core::marker::PhantomData;
+
 pub mod activation;
 pub mod basic;
+pub mod convolution;
+pub mod pooling;
 pub mod softmax;
 
 #[allow(unused)]
@@ -18,6 +22,36 @@ pub enum Error {
     Argument,
     NoImpl,
     Failure,
+}
+
+pub struct NNContext<'a> {
+    context: private::cmsis_nn_context,
+    _marker: PhantomData<&'a ()>,
+}
+
+impl AsRef<private::cmsis_nn_context> for NNContext<'_> {
+    fn as_ref(&self) -> &private::cmsis_nn_context {
+        &self.context
+    }
+}
+
+pub struct Dims(pub(crate) private::cmsis_nn_dims);
+
+impl Dims {
+    pub fn new(patch_size: i32, height: i32, width: i32, channels: i32) -> Dims {
+        Dims(private::cmsis_nn_dims {
+            n: patch_size,
+            h: height,
+            w: width,
+            c: channels,
+        })
+    }
+}
+
+impl AsRef<private::cmsis_nn_dims> for Dims {
+    fn as_ref(&self) -> &private::cmsis_nn_dims {
+        &self.0
+    }
 }
 
 type Result<T> = core::result::Result<T, Error>;
@@ -60,7 +94,18 @@ macro_rules! test_length {
             Err(Error::Argument)
         }
     };
-    () => {};
+}
+
+impl Default for NNContext<'_> {
+    fn default() -> Self {
+        Self {
+            context: private::cmsis_nn_context {
+                buf: core::ptr::null_mut(),
+                size: 0,
+            },
+            _marker: PhantomData,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -90,6 +135,9 @@ mod test_utils {
 }
 
 #[cfg(test)]
+mod test_data;
+
+#[cfg(test)]
 #[defmt_test::tests]
 mod tests {
     use defmt_rtt as _;
@@ -104,5 +152,18 @@ mod tests {
     #[test]
     fn test_softmax_s8() {
         crate::softmax::tests::test_softmax_s8();
+    }
+
+    #[test]
+    fn test_arm_max_pool_s8() {
+        crate::pooling::tests::maxpooling_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_1_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_2_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_3_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_4_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_5_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_6_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_7_arm_max_pool_s8();
+        crate::pooling::tests::maxpooling_param_fail_arm_max_pool_s8();
     }
 }

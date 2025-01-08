@@ -69,14 +69,3 @@ lto = 'fat'
 opt-level = 3            # <-
 overflow-checks = false  # <-
 
-[[test]]
-name = "test_arm_avg_pool_s8"
-harness = false
-
-[[test]]
-name = "test_ndarray"
-harness = false
-
-[[test]]
-name = "test_quantize_add"
-harness = false
