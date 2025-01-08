@@ -1,4 +1,7 @@
-use crate::{private::arm_softmax_s8, test_length, Error, Result};
+use crate::{
+    private::{arm_softmax_s8, arm_softmax_u8},
+    test_length, Error, Result,
+};
 
 pub fn softmax_s8(
     input: &[i8],
@@ -14,6 +17,32 @@ pub fn softmax_s8(
 
     unsafe {
         arm_softmax_s8(
+            input.as_ptr(),
+            num_rows,
+            row_size,
+            mult,
+            shift,
+            diff_min,
+            output.as_mut_ptr(),
+        )
+    };
+    Ok(())
+}
+
+pub fn softmax_u8(
+    input: &[u8],
+    num_rows: i32,
+    row_size: i32,
+    mult: i32,
+    shift: i32,
+    diff_min: i32,
+    output: &mut [u8],
+) -> Result<()> {
+    test_length!(input, num_rows * row_size)?;
+    test_length!(output, num_rows * row_size)?;
+
+    unsafe {
+        arm_softmax_u8(
             input.as_ptr(),
             num_rows,
             row_size,

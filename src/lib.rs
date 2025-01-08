@@ -4,6 +4,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+pub mod activation;
 pub mod basic;
 pub mod softmax;
 
@@ -38,6 +39,13 @@ impl StatusCode for private::arm_cmsis_nn_status {
 
 #[macro_export]
 macro_rules! test_length {
+    ($input1:ident, $input2:ident) => {
+        if $input1.len() == $input2.len() {
+            Ok(())
+        } else {
+            Err(Error::Argument)
+        }
+    };
     ($input:ident, $len:expr) => {
         if $input.len() == $len as usize {
             Ok(())

@@ -1,6 +1,11 @@
+use crate::private::arm_elementwise_add_s16;
 use crate::{private::arm_elementwise_add_s8, StatusCode};
 use crate::{test_length, Error, Result};
 
+/// Elementwise add of two vectors.
+/// <div>
+/// \(a + b \)
+/// </div>
 pub fn elementwise_add_s8(
     input_1: &[i8],
     input_2: &[i8],
@@ -24,6 +29,50 @@ pub fn elementwise_add_s8(
 
     unsafe {
         arm_elementwise_add_s8(
+            input_1.as_ptr(),
+            input_2.as_ptr(),
+            input_1_offset,
+            input_1_mult,
+            input_1_shift,
+            input_2_offset,
+            input_2_mult,
+            input_2_shift,
+            left_shift,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
+pub fn elementwise_add_s16(
+    input_1: &[i16],
+    input_2: &[i16],
+    input_1_offset: i32,
+    input_1_mult: i32,
+    input_1_shift: i32,
+    input_2_offset: i32,
+    input_2_mult: i32,
+    input_2_shift: i32,
+    left_shift: i32,
+    output: &mut [i16],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1, input_2, output)?;
+
+    let block_size: i32 = input_1.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        arm_elementwise_add_s16(
             input_1.as_ptr(),
             input_2.as_ptr(),
             input_1_offset,
