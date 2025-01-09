@@ -241,4 +241,3 @@ pub(crate) mod tests {
 
     pub fn maxpooling_param_fail_arm_max_pool_s8() {}
 }
-

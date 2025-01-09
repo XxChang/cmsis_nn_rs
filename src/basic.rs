@@ -1,6 +1,6 @@
 use crate::private::arm_elementwise_add_s16;
 use crate::{private::arm_elementwise_add_s8, StatusCode};
-use crate::{test_length, Error, Result};
+use crate::{test_length, Dims, Error, NNContext, Result};
 
 /// Elementwise add of two vectors.
 /// <div>
@@ -82,6 +82,182 @@ pub fn elementwise_add_s16(
             input_2_mult,
             input_2_shift,
             left_shift,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
+pub fn maximum_s8(
+    ctx: &NNContext,
+    input_1_data: &[i8],
+    input_1_dims: &Dims,
+    input_2_data: &[i8],
+    input_2_dims: &Dims,
+    output_data: &mut [i8],
+    output_dims: &Dims,
+) -> Result<()> {
+    test_length!(
+        input_1_data,
+        input_1_dims.0.n * input_1_dims.0.h * input_1_dims.0.w * input_1_dims.0.c
+    )?;
+    test_length!(
+        input_2_data,
+        input_2_dims.0.n * input_2_dims.0.h * input_2_dims.0.w * input_2_dims.0.c
+    )?;
+    test_length!(
+        output_data,
+        output_dims.0.n * output_dims.0.h * output_dims.0.w * output_dims.0.c
+    )?;
+
+    let status = unsafe {
+        crate::private::arm_maximum_s8(
+            ctx.as_ref(),
+            input_1_data.as_ptr(),
+            input_1_dims.as_ref(),
+            input_2_data.as_ptr(),
+            input_2_dims.as_ref(),
+            output_data.as_mut_ptr(),
+            output_dims.as_ref(),
+        )
+    };
+
+    status.check_status()
+}
+
+pub fn minimum_s8(
+    ctx: &NNContext,
+    input_1_data: &[i8],
+    input_1_dims: &Dims,
+    input_2_data: &[i8],
+    input_2_dims: &Dims,
+    output_data: &mut [i8],
+    output_dims: &Dims,
+) -> Result<()> {
+    test_length!(
+        input_1_data,
+        input_1_dims.0.n * input_1_dims.0.h * input_1_dims.0.w * input_1_dims.0.c
+    )?;
+    test_length!(
+        input_2_data,
+        input_2_dims.0.n * input_2_dims.0.h * input_2_dims.0.w * input_2_dims.0.c
+    )?;
+    test_length!(
+        output_data,
+        output_dims.0.n * output_dims.0.h * output_dims.0.w * output_dims.0.c
+    )?;
+
+    let status = unsafe {
+        crate::private::arm_minimum_s8(
+            ctx.as_ref(),
+            input_1_data.as_ptr(),
+            input_1_dims.as_ref(),
+            input_2_data.as_ptr(),
+            input_2_dims.as_ref(),
+            output_data.as_mut_ptr(),
+            output_dims.as_ref(),
+        )
+    };
+
+    status.check_status()
+}
+
+pub fn elementwise_mul_acc_s16(
+    input_1_vect: &[i16],
+    input_2_vect: &[i16],
+    input_1_offset: i32,
+    input_2_offset: i32,
+    output: &mut [i16],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_acc_s16(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            input_1_offset,
+            input_2_offset,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
+pub fn elementwise_mul_s8(
+    input_1_vect: &[i8],
+    input_2_vect: &[i8],
+    input_1_offset: i32,
+    input_2_offset: i32,
+    output: &mut [i8],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_s8(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            input_1_offset,
+            input_2_offset,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
+pub fn elementwise_mul_s16(
+    input_1_vect: &[i16],
+    input_2_vect: &[i16],
+    input_1_offset: i32,
+    input_2_offset: i32,
+    output: &mut [i16],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_s16(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            input_1_offset,
+            input_2_offset,
             output.as_mut_ptr(),
             out_offset,
             out_mult,

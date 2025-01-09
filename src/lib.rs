@@ -37,6 +37,29 @@ impl AsRef<private::cmsis_nn_context> for NNContext<'_> {
 
 pub struct Dims(pub(crate) private::cmsis_nn_dims);
 
+pub struct PerChannelQuantParams<'a> {
+    params: private::cmsis_nn_per_channel_quant_params,
+    _marker: PhantomData<&'a ()>,
+}
+
+impl<'a> PerChannelQuantParams<'a> {
+    pub fn new(multiplier: &'a [i32], shift: &'a [i32]) -> PerChannelQuantParams<'a> {
+        PerChannelQuantParams {
+            params: private::cmsis_nn_per_channel_quant_params {
+                multiplier: multiplier.as_ptr() as *mut i32,
+                shift: shift.as_ptr() as *mut i32,
+            },
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl AsRef<private::cmsis_nn_per_channel_quant_params> for PerChannelQuantParams<'_> {
+    fn as_ref(&self) -> &private::cmsis_nn_per_channel_quant_params {
+        &self.params
+    }
+}
+
 impl Dims {
     pub fn new(patch_size: i32, height: i32, width: i32, channels: i32) -> Dims {
         Dims(private::cmsis_nn_dims {
