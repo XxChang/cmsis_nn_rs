@@ -9,6 +9,7 @@ use core::marker::PhantomData;
 pub mod activation;
 pub mod basic;
 pub mod convolution;
+pub mod fully_connected;
 pub mod pooling;
 pub mod softmax;
 
@@ -56,6 +57,44 @@ impl<'a> PerChannelQuantParams<'a> {
 
 impl AsRef<private::cmsis_nn_per_channel_quant_params> for PerChannelQuantParams<'_> {
     fn as_ref(&self) -> &private::cmsis_nn_per_channel_quant_params {
+        &self.params
+    }
+}
+
+pub struct PerTensorQuantParams(private::cmsis_nn_per_tensor_quant_params);
+
+impl PerTensorQuantParams {
+    pub fn new(multiplier: i32, shift: i32) -> PerTensorQuantParams {
+        PerTensorQuantParams(private::cmsis_nn_per_tensor_quant_params { multiplier, shift })
+    }
+}
+
+impl AsRef<private::cmsis_nn_per_tensor_quant_params> for PerTensorQuantParams {
+    fn as_ref(&self) -> &private::cmsis_nn_per_tensor_quant_params {
+        &self.0
+    }
+}
+
+pub struct QuantParams<'a> {
+    params: private::cmsis_nn_quant_params,
+    _marker: PhantomData<&'a ()>,
+}
+
+impl<'a> QuantParams<'a> {
+    pub fn new(multiplier: &'a [i32], shift: &'a [i32], is_per_channel: i32) -> QuantParams<'a> {
+        QuantParams {
+            params: private::cmsis_nn_quant_params {
+                multiplier: multiplier.as_ptr() as *mut i32,
+                shift: shift.as_ptr() as *mut i32,
+                is_per_channel,
+            },
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl AsRef<private::cmsis_nn_quant_params> for QuantParams<'_> {
+    fn as_ref(&self) -> &private::cmsis_nn_quant_params {
         &self.params
     }
 }
