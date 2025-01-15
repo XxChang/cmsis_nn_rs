@@ -1,5 +1,7 @@
 use crate::private::{cmsis_nn_activation, cmsis_nn_conv_params, cmsis_nn_tile};
 
+pub mod convolve_1_x_n;
+
 pub struct Config(cmsis_nn_conv_params);
 
 impl Config {

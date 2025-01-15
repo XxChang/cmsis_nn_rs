@@ -27,6 +27,8 @@ panic-probe = { version = "0.3", features = ["print-defmt"] }
 cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
 embedded-alloc = "0.6.0"
 cortex-m-rt = "0.7.5"
+embedded-graphics = "0.8.1"
+tinybmp = "0.6.0"
 
 [target.thumbv7em-none-eabihf.dev-dependencies.nrf52833-hal]
 version = "0.18.0"
