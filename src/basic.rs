@@ -94,6 +94,168 @@ pub fn elementwise_add_s16(
     .check_status()
 }
 
+pub fn elementwise_mul_acc_s16(
+    input_1_vect: &[i16],
+    input_2_vect: &[i16],
+    input_1_offset: i32,
+    input_2_offset: i32,
+    output: &mut [i16],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_acc_s16(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            input_1_offset,
+            input_2_offset,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
+pub fn elementwise_mul_s8(
+    input_1_vect: &[i8],
+    input_2_vect: &[i8],
+    input_1_offset: i32,
+    input_2_offset: i32,
+    output: &mut [i8],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_s8(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            input_1_offset,
+            input_2_offset,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
+// s16 element wise multiplication of batches of two vectors
+pub fn elementwise_mul_s16_batch_offset(
+    input_1_vect: &[i16],
+    input_2_vect: &[i16],
+    output: &mut [i16],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    block_size: i32,
+    batch_size: i32,
+    batch_offset: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_s16_batch_offset(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            block_size,
+            batch_size,
+            batch_offset,
+        )
+    }
+    .check_status()
+}
+
+// s16 elementwise multiplication with s8 output
+pub fn elementwise_mul_s16_s8(
+    input_1_vect: &[i16],
+    input_2_vect: &[i16],
+    output: &mut [i8],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    block_size: i32,
+    batch_size: i32,
+    batch_offset: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_s16_s8(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            block_size,
+            batch_size,
+            batch_offset,
+        )
+    }
+    .check_status()
+}
+
+pub fn elementwise_mul_s16(
+    input_1_vect: &[i16],
+    input_2_vect: &[i16],
+    input_1_offset: i32,
+    input_2_offset: i32,
+    output: &mut [i16],
+    out_offset: i32,
+    out_mult: i32,
+    out_shift: i32,
+    out_activation_min: i32,
+    out_activation_max: i32,
+) -> Result<()> {
+    test_length!(input_1_vect, input_2_vect, output)?;
+
+    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
+
+    unsafe {
+        crate::private::arm_elementwise_mul_s16(
+            input_1_vect.as_ptr(),
+            input_2_vect.as_ptr(),
+            input_1_offset,
+            input_2_offset,
+            output.as_mut_ptr(),
+            out_offset,
+            out_mult,
+            out_shift,
+            out_activation_min,
+            out_activation_max,
+            block_size,
+        )
+    }
+    .check_status()
+}
+
 pub fn maximum_s8(
     ctx: &NNContext,
     input_1_data: &[i8],
@@ -166,108 +328,6 @@ pub fn minimum_s8(
     };
 
     status.check_status()
-}
-
-pub fn elementwise_mul_acc_s16(
-    input_1_vect: &[i16],
-    input_2_vect: &[i16],
-    input_1_offset: i32,
-    input_2_offset: i32,
-    output: &mut [i16],
-    out_offset: i32,
-    out_mult: i32,
-    out_shift: i32,
-    out_activation_min: i32,
-    out_activation_max: i32,
-) -> Result<()> {
-    test_length!(input_1_vect, input_2_vect, output)?;
-
-    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
-
-    unsafe {
-        crate::private::arm_elementwise_mul_acc_s16(
-            input_1_vect.as_ptr(),
-            input_2_vect.as_ptr(),
-            input_1_offset,
-            input_2_offset,
-            output.as_mut_ptr(),
-            out_offset,
-            out_mult,
-            out_shift,
-            out_activation_min,
-            out_activation_max,
-            block_size,
-        )
-    }
-    .check_status()
-}
-
-pub fn elementwise_mul_s8(
-    input_1_vect: &[i8],
-    input_2_vect: &[i8],
-    input_1_offset: i32,
-    input_2_offset: i32,
-    output: &mut [i8],
-    out_offset: i32,
-    out_mult: i32,
-    out_shift: i32,
-    out_activation_min: i32,
-    out_activation_max: i32,
-) -> Result<()> {
-    test_length!(input_1_vect, input_2_vect, output)?;
-
-    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
-
-    unsafe {
-        crate::private::arm_elementwise_mul_s8(
-            input_1_vect.as_ptr(),
-            input_2_vect.as_ptr(),
-            input_1_offset,
-            input_2_offset,
-            output.as_mut_ptr(),
-            out_offset,
-            out_mult,
-            out_shift,
-            out_activation_min,
-            out_activation_max,
-            block_size,
-        )
-    }
-    .check_status()
-}
-
-pub fn elementwise_mul_s16(
-    input_1_vect: &[i16],
-    input_2_vect: &[i16],
-    input_1_offset: i32,
-    input_2_offset: i32,
-    output: &mut [i16],
-    out_offset: i32,
-    out_mult: i32,
-    out_shift: i32,
-    out_activation_min: i32,
-    out_activation_max: i32,
-) -> Result<()> {
-    test_length!(input_1_vect, input_2_vect, output)?;
-
-    let block_size: i32 = input_1_vect.len().try_into().map_err(|_| Error::Argument)?;
-
-    unsafe {
-        crate::private::arm_elementwise_mul_s16(
-            input_1_vect.as_ptr(),
-            input_2_vect.as_ptr(),
-            input_1_offset,
-            input_2_offset,
-            output.as_mut_ptr(),
-            out_offset,
-            out_mult,
-            out_shift,
-            out_activation_min,
-            out_activation_max,
-            block_size,
-        )
-    }
-    .check_status()
 }
 
 #[cfg(test)]

@@ -163,6 +163,14 @@ pub fn avgpool_s16(
     status.check_status()
 }
 
+pub fn avgpool_s8_get_buffer_size(output_x: i32, ch_src: i32) -> i32 {
+    unsafe { crate::private::arm_avgpool_s8_get_buffer_size(output_x, ch_src) }
+}
+
+pub fn avgpool_s16_get_buffer_size(output_x: i32, ch_src: i32) -> i32 {
+    unsafe { crate::private::arm_avgpool_s16_get_buffer_size(output_x, ch_src) }
+}
+
 #[cfg(test)]
 pub(crate) mod tests {
     use super::*;

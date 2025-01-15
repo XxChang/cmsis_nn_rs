@@ -4,12 +4,14 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-use core::marker::PhantomData;
+use core::{ffi::c_void, marker::PhantomData};
 
 pub mod activation;
 pub mod basic;
+pub mod concatenation;
 pub mod convolution;
 pub mod fully_connected;
+pub mod pad;
 pub mod pooling;
 pub mod softmax;
 
@@ -164,6 +166,25 @@ impl Default for NNContext<'_> {
             context: private::cmsis_nn_context {
                 buf: core::ptr::null_mut(),
                 size: 0,
+            },
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<'a> NNContext<'a> {
+    pub unsafe fn new_from_raw_ptr(ptr: *mut c_void, size: i32) -> Self {
+        Self {
+            context: private::cmsis_nn_context { buf: ptr, size },
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn new_from_slice(slice: &'a mut [()]) -> NNContext<'a> {
+        Self {
+            context: private::cmsis_nn_context {
+                buf: slice.as_mut_ptr() as *mut c_void,
+                size: slice.len().try_into().unwrap(),
             },
             _marker: PhantomData,
         }

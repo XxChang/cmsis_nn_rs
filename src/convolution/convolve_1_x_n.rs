@@ -15,19 +15,20 @@ pub fn convolve_1_x_n_s4(
 ) -> Result<()> {
     unsafe {
         crate::private::arm_convolve_1_x_n_s4(
-            ctx.as_ref(), 
-            conv_params.as_ref(), 
-            quant_params.as_ref(), 
-            input_dims.as_ref(), 
-            input_data.as_ptr(), 
-            filter_dims.as_ref(), 
-            filter_data.as_ptr(), 
-            bias_dims.as_ref(), 
-            bias_data.as_ptr(), 
-            output_dims.as_ref(), 
-            output_data.as_mut_ptr()
+            ctx.as_ref(),
+            conv_params.as_ref(),
+            quant_params.as_ref(),
+            input_dims.as_ref(),
+            input_data.as_ptr(),
+            filter_dims.as_ref(),
+            filter_data.as_ptr(),
+            bias_dims.as_ref(),
+            bias_data.as_ptr(),
+            output_dims.as_ref(),
+            output_data.as_mut_ptr(),
         )
-    }.check_status()
+    }
+    .check_status()
 }
 
 pub fn convolve_1_x_n_s8(
@@ -45,18 +46,18 @@ pub fn convolve_1_x_n_s8(
 ) -> Result<()> {
     unsafe {
         crate::private::arm_convolve_1_x_n_s8(
-            ctx.as_ref(), 
-            conv_params.as_ref(), 
-            quant_params.as_ref(), 
-            input_dims.as_ref(), 
-            input_data.as_ptr(), 
-            filter_dims.as_ref(), 
-            filter_data.as_ptr(), 
-            bias_dims.as_ref(), 
-            bias_data.as_ptr(), 
-            output_dims.as_ref(), 
-            output_data.as_mut_ptr()
+            ctx.as_ref(),
+            conv_params.as_ref(),
+            quant_params.as_ref(),
+            input_dims.as_ref(),
+            input_data.as_ptr(),
+            filter_dims.as_ref(),
+            filter_data.as_ptr(),
+            bias_dims.as_ref(),
+            bias_data.as_ptr(),
+            output_dims.as_ref(),
+            output_data.as_mut_ptr(),
         )
-    }.check_status()
+    }
+    .check_status()
 }
-
