@@ -80,7 +80,7 @@ fn quantize_multiplier(multiplier: f64) -> (i32, i32) {
 
     let (q, mut shift) = libm::frexp(multiplier);
     let mut q_fixed = libm::round(q * ((1u64 << 31) as f64)) as i64;
-    
+
     assert!(q_fixed <= ((1u64) << 31) as i64);
     if q_fixed == ((1u64) << 31) as i64 {
         q_fixed /= 2;

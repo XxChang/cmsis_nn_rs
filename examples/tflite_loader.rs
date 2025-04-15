@@ -4,8 +4,7 @@
 #[path = "./data.rs"]
 mod data;
 
-use cmsis_nn_rs::tflite_adapter::operator::OperatorOptions
-;
+use cmsis_nn_rs::tflite_adapter::operator::OperatorOptions;
 use defmt_rtt as _;
 use embedded_alloc::LlffHeap as Heap;
 use nrf52833_hal as _;
@@ -34,7 +33,7 @@ fn main() -> ! {
     let image_data_7 = &data::IMG0_7.map(|x| (x as i32 - 128) as i8);
     let res = eval_model(image_data_7);
     defmt::info!("image_data_7 was recognized as: {}", res);
-    
+
     loop {}
 }
 
@@ -53,12 +52,9 @@ fn eval_model(input: &[i8]) -> u8 {
         unreachable!()
     };
 
-    conv1_params
-        .eval(input, &mut output_data)
-        .unwrap();
+    conv1_params.eval(input, &mut output_data).unwrap();
 
-    let pool1_params = if let Some(OperatorOptions::MaxPool(params)) = subgraph.get_operator(1)
-    {
+    let pool1_params = if let Some(OperatorOptions::MaxPool(params)) = subgraph.get_operator(1) {
         params
     } else {
         unreachable!()
@@ -84,29 +80,32 @@ fn eval_model(input: &[i8]) -> u8 {
         )
         .unwrap();
 
-        let pool2_params = if let Some(OperatorOptions::MaxPool(params)) = subgraph.get_operator(3)
-        {
+    let pool2_params = if let Some(OperatorOptions::MaxPool(params)) = subgraph.get_operator(3) {
+        params
+    } else {
+        unreachable!()
+    };
+
+    pool2_params
+        .eval(&output_data[0..8 * 11 * 11], &mut tmp_output[0..5 * 5 * 8])
+        .unwrap();
+
+    let fully_connected =
+        if let Some(OperatorOptions::FullyConnected(params)) = subgraph.get_operator(5) {
             params
         } else {
             unreachable!()
         };
 
-        pool2_params
-            .eval(&output_data[0..8 * 11 * 11], &mut tmp_output[0..5 * 5 * 8])
-            .unwrap();
+    fully_connected
+        .eval(&tmp_output[0..5 * 5 * 8], &mut output_data[0..10])
+        .unwrap();
 
-        let fully_connected =
-            if let Some(OperatorOptions::FullyConnected(params)) = subgraph.get_operator(5) {
-                params
-            } else {
-                unreachable!()
-            };
-
-        fully_connected
-            .eval(&tmp_output[0..5 * 5 * 8], &mut output_data[0..10])
-            .unwrap();
-
-    if let Some((index, _v)) = output_data[0..10].iter().enumerate().max_by_key(|&(_, value)| value) {
+    if let Some((index, _v)) = output_data[0..10]
+        .iter()
+        .enumerate()
+        .max_by_key(|&(_, value)| value)
+    {
         return index as u8;
     } else {
         panic!("No max value found");
