@@ -13,7 +13,11 @@ pub mod convolution;
 pub mod fully_connected;
 pub mod pad;
 pub mod pooling;
+pub mod reshape;
 pub mod softmax;
+#[cfg(feature = "tflite")]
+pub mod tflite_adapter;
+pub mod utils;
 
 #[allow(unused)]
 mod private {
@@ -39,6 +43,20 @@ impl AsRef<private::cmsis_nn_context> for NNContext<'_> {
 }
 
 pub struct Dims(pub(crate) private::cmsis_nn_dims);
+
+impl defmt::Format for Dims {
+    fn format(&self, fmt: defmt::Formatter) {
+        let Dims(dims) = self;
+        defmt::write!(
+            fmt,
+            "Dims(n: {}, h: {}, w: {}, c: {})",
+            dims.n,
+            dims.h,
+            dims.w,
+            dims.c
+        );
+    }
+}
 
 pub struct PerChannelQuantParams<'a> {
     params: private::cmsis_nn_per_channel_quant_params,
@@ -180,7 +198,7 @@ impl<'a> NNContext<'a> {
         }
     }
 
-    pub fn new_from_slice(slice: &'a mut [()]) -> NNContext<'a> {
+    pub fn new_from_slice(slice: &'a mut [i8]) -> NNContext<'a> {
         Self {
             context: private::cmsis_nn_context {
                 buf: slice.as_mut_ptr() as *mut c_void,
@@ -189,10 +207,19 @@ impl<'a> NNContext<'a> {
             _marker: PhantomData,
         }
     }
+
+    pub fn fill_zero(&mut self) {
+        let data = unsafe {
+            core::slice::from_raw_parts_mut(self.context.buf as *mut u8, self.context.size as usize)
+        };
+        data.fill(0);
+    }
 }
 
 #[cfg(test)]
 mod test_utils {
+    pub static mut MEMORY: [i8; 50 * 1024] = [0; 50 * 1024];
+
     pub fn validate(act: *const i8, ref_data: *const i8, size: usize) -> bool {
         let mut test_passed = true;
         let mut count = 0;
@@ -235,6 +262,12 @@ mod tests {
     #[test]
     fn test_softmax_s8() {
         crate::softmax::tests::test_softmax_s8();
+    }
+
+    #[test]
+    fn test_arm_convolve_s8() {
+        crate::convolution::tests::basic_convolve_s8();
+        crate::convolution::tests::stride2pad1_convolve_s8();
     }
 
     #[test]

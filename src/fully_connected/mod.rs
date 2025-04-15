@@ -6,16 +6,16 @@ use crate::{
     NNContext, Result, StatusCode,
 };
 
-pub struct Config(cmsis_nn_fc_params);
+pub struct FcParams(cmsis_nn_fc_params);
 
-impl Config {
+impl FcParams {
     pub fn new(
         input_offset: i32,
         filter_offset: i32,
         output_offset: i32,
         range: (i32, i32),
-    ) -> Config {
-        Config(cmsis_nn_fc_params {
+    ) -> FcParams {
+        FcParams(cmsis_nn_fc_params {
             input_offset,
             filter_offset,
             output_offset,
@@ -27,7 +27,21 @@ impl Config {
     }
 }
 
-impl AsRef<cmsis_nn_fc_params> for Config {
+impl defmt::Format for FcParams {
+    fn format(&self, fmt: defmt::Formatter) {
+        defmt::write!(fmt, "FcParams {{");
+        defmt::write!(fmt, "input_offset: {}, ", self.0.input_offset);
+        defmt::write!(fmt, "filter_offset: {}, ", self.0.filter_offset);
+        defmt::write!(fmt, "output_offset: {}, ", self.0.output_offset);
+        defmt::write!(fmt, "activation: {{");
+        defmt::write!(fmt, "min: {}, ", self.0.activation.min);
+        defmt::write!(fmt, "max: {}", self.0.activation.max);
+        defmt::write!(fmt, "}}");
+        defmt::write!(fmt, "}}");
+    }
+}
+
+impl AsRef<cmsis_nn_fc_params> for FcParams {
     fn as_ref(&self) -> &cmsis_nn_fc_params {
         &self.0
     }
@@ -35,7 +49,7 @@ impl AsRef<cmsis_nn_fc_params> for Config {
 
 pub fn fully_connected_wrapper_s8(
     ctx: &NNContext,
-    fc_params: &Config,
+    fc_params: &FcParams,
     quant_params: &crate::QuantParams,
     input_dims: &crate::Dims,
     input_data: &[i8],
@@ -66,7 +80,7 @@ pub fn fully_connected_wrapper_s8(
 
 pub fn fully_connected_s16(
     ctx: &NNContext,
-    fc_params: &Config,
+    fc_params: &FcParams,
     quant_params: &crate::PerTensorQuantParams,
     input_dims: &crate::Dims,
     input: &[i16],
@@ -97,7 +111,7 @@ pub fn fully_connected_s16(
 
 pub fn fully_connected_s8(
     ctx: &NNContext,
-    fc_params: &Config,
+    fc_params: &FcParams,
     quant_params: &crate::PerTensorQuantParams,
     input_dims: &crate::Dims,
     input: &[i8],
@@ -108,6 +122,12 @@ pub fn fully_connected_s8(
     output_dims: &crate::Dims,
     output: &mut [i8],
 ) -> Result<()> {
+    let bias_ptr = if bias.is_empty() {
+        core::ptr::null()
+    } else {
+        bias.as_ptr()
+    };
+
     unsafe {
         crate::private::arm_fully_connected_s8(
             ctx.as_ref(),
@@ -118,7 +138,7 @@ pub fn fully_connected_s8(
             filter_dims.as_ref(),
             kernel.as_ptr(),
             bias_dims.as_ref(),
-            bias.as_ptr(),
+            bias_ptr,
             output_dims.as_ref(),
             output.as_mut_ptr(),
         )
@@ -128,7 +148,7 @@ pub fn fully_connected_s8(
 
 pub fn fully_connected_s4(
     ctx: &NNContext,
-    fc_params: &Config,
+    fc_params: &FcParams,
     quant_params: &crate::PerTensorQuantParams,
     input_dims: &crate::Dims,
     input: &[i8],
@@ -155,4 +175,23 @@ pub fn fully_connected_s4(
         )
     }
     .check_status()
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    const FC_PER_CH_IN_CH: i32 = 89;
+    const FC_PER_CH_OUT_CH: i32 = 22;
+    const FC_PER_CH_PER_CHANNEL_QUANT: bool = true;
+    const FC_PER_CH_BATCH_SIZE: i32 = 1;
+    const FC_PER_CH_OUT_ACTIVATION_MIN: i32 = -128;
+    const FC_PER_CH_OUT_ACTIVATION_MAX: i32 = 127;
+    const FC_PER_CH_INPUT_BATCHES: i32 = 1;
+    const FC_PER_CH_INPUT_W: i32 = 1;
+    const FC_PER_CH_INPUT_H: i32 = 1;
+    const FC_PER_CH_DST_SIZE: i32 = 22;
+    const FC_PER_CH_ACCUMULATION_DEPTH: i32 = 89;
+    const FC_PER_CH_INPUT_OFFSET: i32 = 128;
+    const FC_PER_CH_OUTPUT_OFFSET: i32 = 11;
+
+    pub fn fc_per_ch_fully_connected_s8() {}
 }

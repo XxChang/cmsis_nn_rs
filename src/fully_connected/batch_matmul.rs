@@ -3,7 +3,7 @@ use crate::{private::cmsis_nn_bmm_params, NNContext, Result, StatusCode};
 pub struct Config(cmsis_nn_bmm_params);
 
 impl Config {
-    pub fn new(adj_x: bool, adj_y: bool, fc_params: &super::Config) -> Config {
+    pub fn new(adj_x: bool, adj_y: bool, fc_params: &super::FcParams) -> Config {
         Config(cmsis_nn_bmm_params {
             adj_x,
             adj_y,

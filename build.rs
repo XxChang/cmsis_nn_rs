@@ -1,5 +1,8 @@
 use git2::Repository;
-use std::{env, path::PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 use which::which;
 
 const CMSIS_NN_URL: &str = "https://github.com/ARM-software/CMSIS-NN.git";
@@ -73,6 +76,14 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
+
+    println!("cargo::rerun-if-changed=schema/schema.fbs");
+    flatc_rust::run(flatc_rust::Args {
+        inputs: &[Path::new("schema/schema.fbs")],
+        out_dir: &Path::new("target/flatbuffers/"),
+        ..Default::default()
+    })
+    .expect("flatc");
 }
 
 fn get_repo(url: &str, path: &PathBuf) -> Repository {

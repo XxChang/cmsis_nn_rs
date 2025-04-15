@@ -4,11 +4,26 @@ use crate::{
 };
 use crate::{test_length, Error, Result};
 
-pub struct Config(cmsis_nn_pool_params);
+pub struct PoolParams(cmsis_nn_pool_params);
 
-impl Config {
-    pub fn new(stride: (i32, i32), padding: (i32, i32), range: (i32, i32)) -> Config {
-        Config(cmsis_nn_pool_params {
+impl defmt::Format for PoolParams {
+    fn format(&self, fmt: defmt::Formatter) {
+        defmt::write!(
+            fmt,
+            "PoolParams {{ stride: {{w: {}, h:{}}}, padding: {{w: {}. h:{}}}, activation: {{ min: {}, max: {} }} }}",
+            self.0.stride.w,
+            self.0.stride.h,
+            self.0.padding.w,
+            self.0.padding.h,
+            self.0.activation.min,
+            self.0.activation.max
+        );
+    }
+}
+
+impl PoolParams {
+    pub fn new(stride: (i32, i32), padding: (i32, i32), range: (i32, i32)) -> PoolParams {
+        PoolParams(cmsis_nn_pool_params {
             stride: cmsis_nn_tile {
                 w: stride.0,
                 h: stride.1,
@@ -25,7 +40,7 @@ impl Config {
     }
 }
 
-impl AsRef<cmsis_nn_pool_params> for Config {
+impl AsRef<cmsis_nn_pool_params> for PoolParams {
     fn as_ref(&self) -> &cmsis_nn_pool_params {
         &self.0
     }
@@ -33,7 +48,7 @@ impl AsRef<cmsis_nn_pool_params> for Config {
 
 pub fn max_pool_s16(
     ctx: &NNContext,
-    pool_params: &Config,
+    pool_params: &PoolParams,
     input_dims: &Dims,
     src: &[i16],
     filter_dims: &Dims,
@@ -66,7 +81,7 @@ pub fn max_pool_s16(
 
 pub fn max_pool_s8(
     ctx: &NNContext,
-    pool_params: &Config,
+    pool_params: &PoolParams,
     input_dims: &Dims,
     src: &[i8],
     filter_dims: &Dims,
@@ -99,7 +114,7 @@ pub fn max_pool_s8(
 
 pub fn avgpool_s8(
     ctx: &NNContext,
-    pool_params: &Config,
+    pool_params: &PoolParams,
     input_dims: &Dims,
     src: &[i8],
     filter_dims: &Dims,
@@ -132,7 +147,7 @@ pub fn avgpool_s8(
 
 pub fn avgpool_s16(
     ctx: &NNContext,
-    pool_params: &Config,
+    pool_params: &PoolParams,
     input_dims: &Dims,
     src: &[i16],
     filter_dims: &Dims,
@@ -200,7 +215,7 @@ pub(crate) mod tests {
         let input_data = &crate::test_data::maxpooling_input_tensor;
 
         let ctx = NNContext::default();
-        let pool_params = Config::new(
+        let pool_params = PoolParams::new(
             (MAXPOOLING_STRIDE_W, MAXPOOLING_STRIDE_H),
             (MAXPOOLING_PADDING_W, MAXPOOLING_PADDING_H),
             (MAXPOOLING_ACTIVATION_MIN, MAXPOOLING_ACTIVATION_MAX),
