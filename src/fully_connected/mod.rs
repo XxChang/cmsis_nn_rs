@@ -27,6 +27,7 @@ impl FcParams {
     }
 }
 
+#[cfg(feature = "defmt")]
 impl defmt::Format for FcParams {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(fmt, "FcParams {{");

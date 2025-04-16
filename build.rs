@@ -1,24 +1,22 @@
-use git2::Repository;
 use std::{
     env,
     path::{Path, PathBuf},
 };
 use which::which;
+use embuild::bindgen::types::Formatter;
 
 const CMSIS_NN_URL: &str = "https://github.com/ARM-software/CMSIS-NN.git";
-
-fn switch_branch(repo: &Repository, branch_name: &str) {
-    let (object, reference) = repo.revparse_ext(branch_name).unwrap();
-    repo.checkout_tree(&object, None).unwrap();
-    match reference {
-        Some(gref) => repo.set_head(gref.name().unwrap()),
-        None => repo.set_head_detached(object.id()),
-    }
-    .unwrap();
-}
+const CMSIS_VERSION: &str = "v7.0.0";
 
 fn main() {
     let target = env::var("TARGET").unwrap();
+
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+
+    let out_path = PathBuf::from("target");
+
+    let _cmsis_nn_repo = get_repo(&CMSIS_NN_URL, &out_path);
+
     let arm_toolchain = env::var("ARM_TOOLCHAIN_PATH").unwrap_or_else(|_| {
         let gcc_path = which("arm-none-eabi-gcc").unwrap();
         gcc_path
@@ -31,14 +29,7 @@ fn main() {
             .to_string()
     });
 
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-
-    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let cmsis_nn_dir = out_path.join("CMSIS-NN");
-
-    let cmsis_nn_repo = get_repo(&CMSIS_NN_URL, &cmsis_nn_dir);
-
-    switch_branch(&cmsis_nn_repo, "v7.0.0");
+    let cmsis_nn_dir = out_path.join("CMSIS-NN").join(CMSIS_VERSION);
 
     let toolchain_file = manifest_dir.join("cmake/toolchain/arm-none-eabi-gcc.cmake");
 
@@ -46,8 +37,7 @@ fn main() {
         "thumbv7em-none-eabihf" => "cortex-m4",
         _ => unimplemented!(),
     };
-
-    let lib = cmake::Config::new(&cmsis_nn_dir)
+    let lib = embuild::cmake::Config::new(&cmsis_nn_dir)
         .define("CMAKE_TOOLCHAIN_FILE", &toolchain_file)
         .define("TARGET_CPU", target_flag)
         .build_target("cmsis-nn")
@@ -61,11 +51,16 @@ fn main() {
     let cmsis_nn_include_dir = cmsis_nn_dir.join("Include");
     let arm_toolchain_include_dir = PathBuf::from(arm_toolchain).join("include");
 
-    let bindings = bindgen::Builder::default()
+    // embuild::bindgen::Factory::new().builder()
+    //     .head
+    let bindings = embuild::bindgen::Factory::new()
+        .with_linker("arm-none-eabi-gcc")
+        .builder()
+        .unwrap()
         .header("wrapper.h")
         .derive_default(true)
         .generate_comments(true)
-        .formatter(bindgen::Formatter::Rustfmt)
+        .formatter(Formatter::Rustfmt)
         .clang_arg(format!("-I{}", cmsis_nn_include_dir.display()))
         // .clang_arg("-nostdinc")
         .clang_arg(format!("-I{}", arm_toolchain_include_dir.display()))
@@ -73,6 +68,7 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings");
 
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
@@ -86,11 +82,17 @@ fn main() {
     .expect("flatc");
 }
 
-fn get_repo(url: &str, path: &PathBuf) -> Repository {
-    let repo = match Repository::open(&path) {
-        Ok(repo) => repo,
-        Err(e) if e.code() == git2::ErrorCode::NotFound => Repository::clone(url, &path).unwrap(),
-        Err(e) => panic!("Failed to open: {}", e),
+fn get_repo(url: &str, path: &PathBuf) -> embuild::git::Repository {
+    let git_ref = embuild::git::Ref::parse(CMSIS_VERSION);
+    let remote_repo = embuild::git::sdk::RemoteSdk {
+        repo_url: None,
+        git_ref,
     };
+    let clone_options = embuild::git::CloneOptions::new();
+
+    let repo = remote_repo
+        .open_or_clone(&path, clone_options, url, "CMSIS-NN")
+        .unwrap();
+
     repo
 }

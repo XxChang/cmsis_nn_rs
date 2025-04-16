@@ -92,12 +92,6 @@ impl<'b: 'a, 'a> FullyConnectedParams<'a> {
                 per_channel_shift.push(shift);
             }
 
-            defmt::debug!(
-                "per channel multiplier: {:?}",
-                per_channel_multiplier.as_slice()
-            );
-            defmt::debug!("per channel shift: {:?}", per_channel_shift.as_slice());
-
             Some(FullyConnectedParams {
                 output_dims_count,
 
@@ -129,19 +123,12 @@ impl<'b: 'a, 'a> FullyConnectedParams<'a> {
                 self.fc_params.output_offset,
                 (self.fc_params.activation.min, self.fc_params.activation.max),
             );
-            defmt::debug!("fc params: {}", fc_params);
 
             let fc_quant_params = QuantParams::new(
                 self.per_channel_multiplier.as_slice(),
                 self.per_channel_shift.as_slice(),
                 if self.is_per_channel { 1 } else { 0 },
             );
-
-            defmt::debug!(
-                "per channel multiplier: {:?}",
-                self.per_channel_multiplier.as_slice()
-            );
-            defmt::debug!("per channel shift: {:?}", self.per_channel_shift.as_slice());
 
             let fc_ctx = NNContext::default();
 
@@ -153,10 +140,6 @@ impl<'b: 'a, 'a> FullyConnectedParams<'a> {
 
             let output_dims = Dims::new(self.batches, 1, 1, self.output_depth);
 
-            defmt::debug!("input dims: {:?}", input_dims);
-            defmt::debug!("filter dims: {:?}", filter_dims);
-            defmt::debug!("bias dims: {:?}", bias_dims);
-            defmt::debug!("output dims: {:?}", output_dims);
 
             fully_connected_wrapper_s8(
                 &fc_ctx,

@@ -5,6 +5,7 @@ use crate::{
 
 pub struct ConvParams(cmsis_nn_conv_params);
 
+#[cfg(feature = "defmt")]
 impl defmt::Format for ConvParams {
     fn format(&self, fmt: defmt::Formatter) {
         let ConvParams(params) = self;

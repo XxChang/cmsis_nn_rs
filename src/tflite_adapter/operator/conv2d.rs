@@ -50,10 +50,6 @@ impl<'b: 'a, 'a> Conv2DParams<'a> {
             let weight_index = inputs_array[1];
             let bias_index = inputs_array[2];
             let output_index = outputs_array[0];
-            defmt::debug!("input_index: {}", input_index);
-            defmt::debug!("weight_index: {}", weight_index);
-            defmt::debug!("bias_index: {}", bias_index);
-            defmt::debug!("output_index: {}", output_index);
 
             let tensors = subgraph.tensors();
             let input = &tensors[input_index as usize];
@@ -208,16 +204,10 @@ impl<'b: 'a, 'a> Conv2DParams<'a> {
             ),
         );
 
-        defmt::debug!("conv params: {}", conv_params);
         let quant_params = PerChannelQuantParams::new(
             self.per_channel_multiplier.as_slice(),
             self.per_channel_shift.as_slice(),
         );
-        defmt::debug!(
-            "per channel multiplier: {:?}",
-            self.per_channel_multiplier.as_slice()
-        );
-        defmt::debug!("per channel shift: {:?}", self.per_channel_shift.as_slice());
 
         let input_dims = Dims::new(
             self.input_dims.n,
@@ -225,23 +215,19 @@ impl<'b: 'a, 'a> Conv2DParams<'a> {
             self.input_dims.w,
             self.input_dims.c,
         );
-        defmt::debug!("input_dims {:?}", input_dims);
         let filter_dims = Dims::new(
             self.filter_dims.n,
             self.filter_dims.h,
             self.filter_dims.w,
             self.filter_dims.c,
         );
-        defmt::debug!("filter_dims {:?}", filter_dims);
         let output_dims = Dims::new(
             self.output_dims.n,
             self.output_dims.h,
             self.output_dims.w,
             self.output_dims.c,
         );
-        defmt::debug!("output_dims {:?}", output_dims);
         let bias_dims = Dims::new(1, 1, 1, self.output_dims.c);
-        defmt::debug!("bias_dims {:?}", bias_dims);
         let buf_size = convolve_wrapper_s8_get_buffer_size(
             &conv_params,
             &input_dims,
@@ -251,9 +237,6 @@ impl<'b: 'a, 'a> Conv2DParams<'a> {
 
         let mut ctx = unsafe { NNContext::new_from_slice(&mut MEMORY[0..buf_size as usize]) };
         ctx.fill_zero();
-
-        defmt::debug!("weights {:?}", self.weights);
-        defmt::debug!("bias {:?}", self.bias);
 
         convolve_wrapper_s8(
             &ctx,

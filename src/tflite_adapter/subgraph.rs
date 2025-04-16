@@ -81,32 +81,26 @@ impl<'b: 'a, 'a> SubGraph<'a> {
             match opcode.builtin_code().0 {
                 x if x == schema_generated::tflite::BuiltinOperator::CONV_2D.0 => {
                     let params = super::operator::conv2d::Conv2DParams::new(&op, self).unwrap();
-                    defmt::info!("Conv2D");
                     Some(OperatorOptions::Conv2D(params))
                 }
                 x if x == schema_generated::tflite::BuiltinOperator::MAX_POOL_2D.0 => {
                     let params =
                         super::operator::max_pooling::MaxPoolParams::new(&op, self).unwrap();
-                    defmt::info!("MaxPool2D");
                     Some(OperatorOptions::MaxPool(params))
                 }
                 x if x == schema_generated::tflite::BuiltinOperator::RESHAPE.0 => {
-                    defmt::info!("Reshape");
                     None
                 }
                 x if x == schema_generated::tflite::BuiltinOperator::RELU.0 => {
-                    defmt::info!("Relu");
                     None
                 }
                 x if x == schema_generated::tflite::BuiltinOperator::FULLY_CONNECTED.0 => {
-                    defmt::info!("FullyConnected");
                     let params =
                         super::operator::fully_connect::FullyConnectedParams::new(&op, self)
                             .unwrap();
                     Some(OperatorOptions::FullyConnected(params))
                 }
                 x if x == schema_generated::tflite::BuiltinOperator::SOFTMAX.0 => {
-                    defmt::info!("Softmax");
                     let params = super::operator::softmax::SoftMaxParams::new(&op, self).unwrap();
                     Some(OperatorOptions::Softmax(params))
                 }

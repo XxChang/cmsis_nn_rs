@@ -44,6 +44,7 @@ impl AsRef<private::cmsis_nn_context> for NNContext<'_> {
 
 pub struct Dims(pub(crate) private::cmsis_nn_dims);
 
+#[cfg(feature = "defmt")]
 impl defmt::Format for Dims {
     fn format(&self, fmt: defmt::Formatter) {
         let Dims(dims) = self;

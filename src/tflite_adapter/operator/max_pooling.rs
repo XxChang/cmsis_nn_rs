@@ -137,10 +137,6 @@ impl MaxPoolParams {
                 self.pool_params.activation.max,
             ),
         );
-        defmt::debug!("pool params: {}", pool_params);
-        defmt::debug!("input dims: {:?}", input_dims);
-        defmt::debug!("filter dims: {:?}", filter_dims);
-        defmt::debug!("output dims: {:?}", output_dims);
 
         let ctx = NNContext::default();
         max_pool_s8(

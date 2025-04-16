@@ -6,6 +6,7 @@ use crate::{test_length, Error, Result};
 
 pub struct PoolParams(cmsis_nn_pool_params);
 
+#[cfg(feature = "defmt")]
 impl defmt::Format for PoolParams {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(

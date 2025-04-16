@@ -11,6 +11,7 @@ pub struct SoftMaxParams {
     diff_min: i32,
 }
 
+#[cfg(feature = "defmt")]
 impl defmt::Format for SoftMaxParams {
     fn format(&self, fmt: defmt::Formatter) {
         defmt::write!(fmt, "SoftMaxParams {{ num_rows: {}, ", self.num_rows);
@@ -126,7 +127,6 @@ impl SoftMaxParams {
         input_left_shift: i32,
         // total_signed_bits: i32,
     ) -> i32 {
-        defmt::debug!("input_left_shift: {}", input_left_shift);
         let total_signed_bits = 31;
         let max_input_rescaled = 1.0
             * (((1 << input_integer_bits) - 1) as f64)
