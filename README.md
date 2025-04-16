@@ -1,11 +1,6 @@
 # cmsis_nn_rs
 rust bindings for [CMSIS-NN](https://github.com/ARM-software/CMSIS-NN).
 
-## Prerequisite
-`git2` crate requires `libgit2` library, you should download first.
-```
-sudo apt install libgit2-dev
-```
+## integrate with tflite
+`cmsis_nn_rs` app can be created from tflite model. See `examples/tflite_loader.rs` for details. And run it with `cargo run --example tflite_loader --release`.
 
-## How to use
-There are two way to use it.
