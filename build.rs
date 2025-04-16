@@ -35,6 +35,7 @@ fn main() {
 
     let target_flag = match target.as_str() {
         "thumbv7em-none-eabihf" => "cortex-m4",
+        "thumbv7m-none-eabi" => "cortex-m3",
         _ => unimplemented!(),
     };
     let lib = embuild::cmake::Config::new(&cmsis_nn_dir)
@@ -51,8 +52,6 @@ fn main() {
     let cmsis_nn_include_dir = cmsis_nn_dir.join("Include");
     let arm_toolchain_include_dir = PathBuf::from(arm_toolchain).join("include");
 
-    // embuild::bindgen::Factory::new().builder()
-    //     .head
     let bindings = embuild::bindgen::Factory::new()
         .with_linker("arm-none-eabi-gcc")
         .builder()

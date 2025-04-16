@@ -44,6 +44,10 @@ tflite = ["dep:flatbuffers", "dep:ndarray"]
 [target.thumbv7em-none-eabihf.dev-dependencies.nrf52833-hal]
 version = "0.18.0"
 
+[target.thumbv7m-none-eabi.dev-dependencies.stm32f1xx-hal]
+version = "0.10.0"
+features = ["stm32f103", "rt"]
+
 # cargo build/run
 [profile.dev]
 codegen-units = 1

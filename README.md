@@ -8,3 +8,4 @@ sudo apt install libgit2-dev
 ```
 
 ## How to use
+There are two way to use it.
